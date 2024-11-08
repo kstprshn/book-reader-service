@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Redact people</title>
+</head>
+<body>
+<h1>Redacting a person</h1>
+<form th:method="POST" th:action="@{/people/{id}(id=${person.getId()})}" th:object="${person}">
+    <input type="hidden" name="_method" value="PATCH">
+
+    <label for="name">Enter name: </label>
+    <input type="text" th:field="*{name}" id="name"/>
+    <div style="color:#c90a43" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Title Error</div>
+    <br/>
+    <label for="date_of_birth">Enter birthday_date: </label>
+    <input type="date" th:field="*{date_of_birth}" id="date_of_birth"/>
+    <div style="color:#c90a43" th:if="${#fields.hasErrors('date_of_birth')}" th:errors="*{date_of_birth}">Date Error</div>
+    <br/>
+    <label for="email">Enter email: </label>
+    <input type="email" th:field="*{email}" id="email"/>
+    <div style="color:#c90a43" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email Error</div>
+    <br/>
+    <hr>
+    <input type="submit" value="Redact"/>
+</form>
+</body>
+</html>
