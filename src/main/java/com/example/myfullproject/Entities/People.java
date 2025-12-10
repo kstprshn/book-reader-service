@@ -25,7 +25,7 @@ public class People {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Pattern(regexp = "[a-zA-Z]+", message = "Incorrect name. The name can only have words...")
+  //  @Pattern(regexp = "[a-zA-Z]+", message = "Incorrect name. The name can only have words...")
     @Size(min = 3, message = "Minimum 3 character must be...")
     @NotEmpty(message = "Name mustn't be empty")
     @Column(name = "name")

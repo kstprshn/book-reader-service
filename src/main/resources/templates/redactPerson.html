@@ -2,27 +2,40 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Redact people</title>
+    <title>Edit Person</title>
+
+    <style>
+        body { font-family: Arial,serif; max-width: 600px; margin: 40px auto; }
+        form { padding: 20px; border: 1px solid #ddd; border-radius: 6px; }
+        label { font-weight: bold; }
+        input { width: 100%; padding: 8px; margin-bottom: 15px; }
+        .error { color: #c0392b; font-size: 14px; }
+        .btn { background: #0074d9; padding: 10px 14px; color: white; border: none; }
+    </style>
+
 </head>
+
 <body>
-<h1>Redacting a person</h1>
+
+<h1>Edit person</h1>
+
 <form th:method="POST" th:action="@{/people/{id}(id=${person.getId()})}" th:object="${person}">
     <input type="hidden" name="_method" value="PATCH">
 
-    <label for="name">Enter name: </label>
-    <input type="text" th:field="*{name}" id="name"/>
-    <div style="color:#c90a43" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Title Error</div>
-    <br/>
-    <label for="date_of_birth">Enter birthday_date: </label>
-    <input type="date" th:field="*{date_of_birth}" id="date_of_birth"/>
-    <div style="color:#c90a43" th:if="${#fields.hasErrors('date_of_birth')}" th:errors="*{date_of_birth}">Date Error</div>
-    <br/>
-    <label for="email">Enter email: </label>
-    <input type="email" th:field="*{email}" id="email"/>
-    <div style="color:#c90a43" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email Error</div>
-    <br/>
-    <hr>
-    <input type="submit" value="Redact"/>
+    <label>Name</label>
+    <input type="text" th:field="*{name}">
+    <div class="error" th:errors="*{name}" th:if="${#fields.hasErrors('name')}"></div>
+
+    <label>Date of birth</label>
+    <input type="date" th:field="*{date_of_birth}">
+    <div class="error" th:errors="*{date_of_birth}" th:if="${#fields.hasErrors('date_of_birth')}"></div>
+
+    <label>Email</label>
+    <input type="email" th:field="*{email}">
+    <div class="error" th:errors="*{email}" th:if="${#fields.hasErrors('email')}"></div>
+
+    <button class="btn">Save changes</button>
 </form>
+
 </body>
 </html>

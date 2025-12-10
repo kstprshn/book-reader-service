@@ -3,15 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>All People</title>
+
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 40px auto; }
+        .people-list a {
+            display: block;
+            padding: 10px 0;
+            text-decoration: none;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+        }
+        .people-list a:hover { color: #0074d9; }
+        .btn {
+            padding: 8px 14px;
+            background: #0074d9;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+    </style>
 </head>
+
 <body>
+
 <h1>All people</h1>
-<div th:each="el : ${all}">
-    <a th:href="@{/people/{id}(id=${el.getId()})}" th:text="${el.getName()}">People</a>
+
+<div class="people-list">
+    <a th:each="el : ${all}" th:href="@{/people/{id}(id=${el.getId()})}" th:text="${el.getName()}"></a>
 </div>
-<br/>
-<hr>
-<a th:href="@{/people/peoplePage}">Add people</a>
-<br/>
+
+<br>
+
+<a class="btn" th:href="@{/people/peoplePage}">Add person</a>
+
 </body>
 </html>

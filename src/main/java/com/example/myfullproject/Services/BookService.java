@@ -9,20 +9,23 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 public class BookService {
     private final BookRepository bookRepository;
 
+    private final LogService logService;
+
 
     @Autowired
-    public BookService(BookRepository bookRepository) {
+    public BookService(BookRepository bookRepository, LogService logService) {
         this.bookRepository = bookRepository;
+        this.logService = logService;
     }
 
     public List<Book> findAllBooks(boolean sortByYear) {
@@ -65,23 +68,48 @@ public class BookService {
 
     //книга с указанным ее id
     public People getBookOwner(long id) {
-
-//        Book b = bookRepository.findById(id).orElse(null);
-//        return b.getPerson();
-
         return bookRepository.findById(id).map(Book::getPerson).orElse(null);
     }
 
+
     @Transactional
-    public void cleanBook(long id) {
-        bookRepository.findById(id).ifPresent(b -> b.setPerson(null));
-        bookRepository.findById(id).ifPresent(book -> book.setTaken_at(null));
+    public void borrow (long book_id, People person){
+        Book book = bookRepository.findById(book_id).orElseThrow(IllegalStateException::new);
+
+        if(book.getCopies() < 1){
+            throw new IllegalStateException();
+        }
+
+        book.setCopies( book.getCopies() - 1);
+        book.setPerson(person);
+        book.init();
     }
 
     @Transactional
-    public void setBook(long book_id, People chosenPerson) {
-        bookRepository.findById(book_id).ifPresent(b -> b.setPerson(chosenPerson));
-        Objects.requireNonNull(bookRepository.findById(book_id).orElse(null)).init();
+    public void returnBook(long book_id){
+        Book book = bookRepository.findById(book_id).orElseThrow(IllegalArgumentException::new);
+        book.setCopies(book.getCopies() + 1);
+        book.setPerson(null);
+        book.setTaken_at(null);
+    }
+
+    @Transactional
+    public void addCopies(long bookId, int additional) {
+        logService.log("ADD_COPIES", "bookId=" + bookId + ", additional=" + additional);
+        Book book = bookRepository.findById(bookId).orElseThrow(() -> new IllegalStateException("Book not found with id " + bookId));
+        if (additional <= 0) {
+            logService.log("ADD_COPIES_INVALID", "bookId=" + bookId + ", additional=" + additional);
+            throw new IllegalArgumentException("additional must be > 0");
+        }
+        book.setCopies(book.getCopies() + additional);
+        logService.log("ADD_COPIES_SUCCESS", "bookId=" + bookId + ", newCopies=" + book.getCopies());
+    }
+
+    public List<Book> getAvailableBooks(){
+        return bookRepository.findAll()
+                .stream()
+                .filter(el -> el.getCopies() > 0)
+                .collect(Collectors.toList());
     }
 
 }

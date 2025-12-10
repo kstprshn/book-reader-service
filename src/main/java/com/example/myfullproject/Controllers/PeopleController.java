@@ -63,9 +63,12 @@ public class PeopleController {
     public String update(@PathVariable("id") long id,
                          @ModelAttribute("person") @Valid People person,
                          BindingResult bindingResult){
+
         peopleValidator.validate(person, bindingResult);
+
         if (bindingResult.hasErrors())
             return "redactPerson";
+
         peopleService.update(id, person);
         return "redirect:/people";
     }

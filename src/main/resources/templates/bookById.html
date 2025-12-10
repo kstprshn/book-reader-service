@@ -2,47 +2,61 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Book By Id</title>
+    <title>Book Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; }
+        h1 { text-align: center; margin-bottom: 20px; color: #333; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .card p { margin: 10px 0; }
+        .btn { padding: 8px 14px; background: #0074d9; color: white; border-radius: 4px; text-decoration: none; margin-right: 5px; }
+        .btn:hover { background: #005db7; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #c82333; }
+    </style>
 </head>
 <body>
-<h1>Book by Id</h1>
-<p th:text="${'Title is ' + book.getTitle()}">VALUE1</p>
-<p th:text="${'Author is ' + book.getAuthor()}">VALUE2</p>
-<p th:text="${'Year_of_publication is ' + book.getYear()}">VALUE3</p>
-<br/>
-<hr>
 
+<h1>Book Details</h1>
 
-<div th:if="${owner}">
-    <span>The book belongs to: </span> <span th:text="${owner.getName()}">Person Name</span>
+<div class="card">
+    <p><strong>UDC:</strong> <span th:text="${book.udc}"></span></p>
+    <p><strong>Title:</strong> <span th:text="${book.title}"></span></p>
+    <p><strong>Author:</strong> <span th:text="${book.author}"></span></p>
+    <p><strong>Year:</strong> <span th:text="${book.year}"></span></p>
+    <p><strong>Copies:</strong> <span th:text="${book.copies}"></span></p>
+    <p><strong>Status:</strong>
+        <span th:text="${book.person != null ? 'Taken by ' + book.person.name : 'Available'}"></span>
+    </p>
+    <p th:if="${book.person != null}"><strong>Taken at:</strong> <span th:text="${#dates.format(book.taken_at,'dd.MM.yyyy')}"></span></p>
+</div>
 
-    <form th:method="PATCH" th:action="@{/books/{id}/clean(id=${book.getId()})}">
-        <input type="submit" value="Clean the book"/>
+<div>
+    <a class="btn" th:href="@{/books/{id}/redact(id=${book.id})}">Edit</a>
+    <form th:action="@{/books/{id}(id=${book.id})}" method="post" style="display:inline;">
+        <input type="hidden" name="_method" value="delete"/>
+        <button type="submit" class="btn btn-danger">Delete</button>
     </form>
 </div>
 
-<div th:if="${people}">
-    <span>This book is free. Which person will have it?</span>
-    <form th:method="PATCH" th:action="@{/books/{id}/set(id=${book.getId()})}">
-        <label for="person">Choose the person</label>
-        <select th:object="${person}" th:field="*{id}" id="person">
-            <option th:each="person : ${people}" th:value="${person.getId()}" th:text="${person.getName()}">
-            </option>
+<div th:if="${book.person == null}">
+    <form th:action="@{/books/{id}/borrow(id=${book.id})}" method="post">
+        <input type="hidden" name="_method" value="patch"/>
+        <select name="personId" required>
+        <option th:each="p : ${people}" th:value="${p.id}" th:text="${p.name}"></option>
         </select>
-        <input type="submit" value="Set the book"/>
+        <button type="submit" class="btn">Borrow</button>
     </form>
 </div>
+<div th:if="${book.person != null}">
+    <form th:action="@{/books/{id}/return(id=${book.id})}" method="post">
+        <input type="hidden" name="_method" value="patch"/>
+        <button type="submit" class="btn">Return Book</button>
+    </form>
+</div>
+<div style="margin-top: 20px;">
+    <a class="btn" th:href="@{/books}">Back to All Books</a>
+</div>
 
-<hr/>
-
-<hr>
-<a th:href="@{/books/{id}/redact(id=${book.getId()})}">Edit</a>
-<br/>
-<br/>
-<hr>
-<form th:method="DELETE" th:action="@{/books/{id}(id=${book.getId()})}">
-    <input type="submit" value="Delete"/>
-</form>
 
 </body>
 </html>

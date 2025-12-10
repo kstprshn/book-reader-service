@@ -29,16 +29,16 @@ public class PeopleService {
     }
 
     public People findOne(long id) {
-       return peopleRepository.findById(id).orElse(null);
+        return peopleRepository.findById(id).orElse(null);
     }
 
-     public Optional<People> findByName(String str){
+    public Optional<People> findByName(String str){
         return peopleRepository.findByName(str);
-     }
+    }
 
     @Transactional
     public void save(People person) {
-       peopleRepository.save(person);
+        peopleRepository.save(person);
     }
 
     @Transactional

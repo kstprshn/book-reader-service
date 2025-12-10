@@ -3,15 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <title>All Books</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px auto; max-width: 1000px; }
+        h1 { text-align: center; margin-bottom: 20px; color: #333; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #0074d9; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        .btn { padding: 6px 12px; background: #28a745; color: white; border-radius: 4px; text-decoration: none; }
+        .btn:hover { background: #218838; }
+        .top-bar { margin-bottom: 20px; text-align: right; }
+    </style>
 </head>
 <body>
-<h1>All books</h1>
-<div th:each="el : ${books}">
-    <a th:href="@{/books/{id}(id=${el.getId()})}" th:text="${el.getTitle()}">Books</a>
+
+<h1>Library Books</h1>
+
+<div class="top-bar">
+    <a class="btn" th:href="@{/books/bookPage}">Add New Book</a>
+    <a class="btn" th:href="@{/books/available}">Available Books</a>
 </div>
-<br/>
-<hr>
-<a th:href="@{/books/bookPage}">Page for adding book</a>
-<br/>
+
+
+<table>
+    <thead>
+    <tr>
+        <th>UDC</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Year</th>
+        <th>Copies</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="book : ${books}">
+        <td th:text="${book.udc}">UDC</td>
+        <td th:text="${book.title}">Title</td>
+        <td th:text="${book.author}">Author</td>
+        <td th:text="${book.year}">Year</td>
+        <td th:text="${book.copies}">Copies</td>
+        <td th:text="${book.person != null ? 'Taken' : 'Available'}"></td>
+        <td>
+            <a class="btn" th:href="@{/books/{id}(id=${book.id})}">View</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
 </body>
 </html>

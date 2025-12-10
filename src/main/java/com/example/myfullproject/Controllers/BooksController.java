@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/books")
 public class BooksController {
+
     private final BookService bookService;
     private final PeopleService peopleService;
 
@@ -27,23 +28,40 @@ public class BooksController {
     public String allBooks(Model model,
                            @RequestParam(value = "page", required = false) Integer page,
                            @RequestParam(value = "books_per_page", required = false) Integer books_per_page,
-                           @RequestParam(value = "sort_by_year", required = false) boolean sortByYear) {
+                           @RequestParam(value = "sort_by_year", required = false, defaultValue = "false")
+                           boolean sortByYear) {
+
         if (page == null || books_per_page == null) {
             model.addAttribute("books", bookService.findAllBooks(sortByYear));
-        } else
-            model.addAttribute("books", bookService.findAllWithPagination(page, books_per_page, sortByYear));
+        } else {
+            model.addAttribute("books",
+                    bookService.findAllWithPagination(page, books_per_page, sortByYear));
+        }
         return "allBooks";
     }
 
-    @GetMapping("/{id}")
-    public String bookById(@PathVariable("id") long id, Model model, @ModelAttribute("person") People person) {
-        model.addAttribute("book", bookService.findOne(id));
+    @GetMapping("/available")
+    public String availableBooks(Model model) {
+        model.addAttribute("books", bookService.getAvailableBooks());
+        return "availableBooks";
+    }
 
-        People bookOwner = bookService.getBookOwner(id);
-        if (bookOwner != null)
-            model.addAttribute("owner", bookOwner);
-        else
+    @GetMapping("/{id}")
+    public String bookById(@PathVariable("id") long id,
+                           Model model,
+                           @ModelAttribute("person") People person) {
+
+        Book book = bookService.findOne(id);
+        model.addAttribute("book", book);
+
+        People owner = bookService.getBookOwner(id);
+
+        if (owner != null) {
+            model.addAttribute("owner", owner);
+        } else {
+            // список людей для выпадающего списка при выдаче
             model.addAttribute("people", peopleService.getAllPeople());
+        }
 
         return "bookById";
     }
@@ -58,6 +76,7 @@ public class BooksController {
                           BindingResult bindingResult) {
         if (bindingResult.hasErrors())
             return "pageForBook";
+
         bookService.save(book);
         return "redirect:/books";
     }
@@ -66,7 +85,6 @@ public class BooksController {
     public String redact(@PathVariable("id") long id, Model model) {
         model.addAttribute("book", bookService.findOne(id));
         return "redactBook";
-
     }
 
     @PatchMapping("/{id}")
@@ -75,6 +93,7 @@ public class BooksController {
                          BindingResult bindingResult) {
         if (bindingResult.hasErrors())
             return "redactBook";
+
         bookService.update(id, book);
         return "redirect:/books";
     }
@@ -85,15 +104,25 @@ public class BooksController {
         return "redirect:/books";
     }
 
-    @PatchMapping("/{id}/set")
-    public String setBook(@PathVariable("id") long id, @ModelAttribute("person") People selectedPerson) {
-        bookService.setBook(id, selectedPerson);
+    @PatchMapping("/{id}/borrow")
+    public String borrow(@PathVariable("id") long id,
+                         @ModelAttribute("person") People person) {
+
+        bookService.borrow(id, person);
         return "redirect:/books/" + id;
     }
 
-    @PatchMapping("/{id}/clean")
-    public String cleanBook(@PathVariable("id") long id) {
-        bookService.cleanBook(id);
+    @PatchMapping("/{id}/return")
+    public String returnBook(@PathVariable("id") long id) {
+        bookService.returnBook(id);
+        return "redirect:/books/" + id;
+    }
+
+    @PatchMapping("/{id}/addCopies")
+    public String addCopies(@PathVariable("id") long id,
+                            @RequestParam("additional") int additional) {
+
+        bookService.addCopies(id, additional);
         return "redirect:/books/" + id;
     }
 
@@ -103,7 +132,9 @@ public class BooksController {
     }
 
     @PostMapping("/search")
-    public String search(Model model, @RequestParam("query") String query){
+    public String search(Model model,
+                         @RequestParam("query") String query) {
+
         model.addAttribute("books", bookService.findByTitleStart(query));
         return "search";
     }

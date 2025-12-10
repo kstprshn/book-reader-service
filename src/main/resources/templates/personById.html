@@ -2,36 +2,43 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Person By Id</title>
+    <title>Person</title>
+
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 40px auto; }
+        .block { border: 1px solid #ddd; border-radius: 6px; padding: 20px; margin-bottom: 20px; }
+        table { margin-top: 10px; }
+        tr { padding: 6px 0; }
+        .btn { background: #0074d9; padding: 8px 14px; color: white; border-radius: 4px; text-decoration: none; }
+        .btn-red { background: #c0392b; border: none; padding: 8px 14px; color: white; }
+    </style>
 </head>
+
 <body>
-<h1>Person By Id</h1>
-<p th:text="${'Name is ' + person.getName()}">VALUE1</p>
-<p th:text="${'Birthday_date is ' + person.getDate_of_birth()}">VALUE2</p>
-<p th:text="${'Email is ' + person.getEmail()}">VALUE3</p>
-<br/>
-<hr>
 
-<div th:if="${personBooks.isEmpty()}">
-    <p>Person has no books</p>
-    <hr>
+<h1 th:text="${person.getName()}"></h1>
+
+<div class="block">
+    <p><b>Birthday:</b> <span th:text="${person.getDate_of_birth()}"></span></p>
+    <p><b>Email:</b> <span th:text="${person.getEmail()}"></span></p>
 </div>
 
-<div th:if="${!personBooks.isEmpty()}">
-    <b>Books: </b>
-    <br>
-    <table th:each="book : ${personBooks}">
-        <tr th:text="${book.getTitle() + ', ' + book.getAuthor() + ', ' + book.getYear()}">Book</tr>
+<div class="block" th:if="${personBooks.isEmpty()}">
+    <p>This person has no books.</p>
+</div>
+
+<div class="block" th:if="${!personBooks.isEmpty()}">
+    <b>Books:</b>
+    <table>
+        <tr th:each="book : ${personBooks}"
+            th:text="${book.getTitle() + ', ' + book.getAuthor() + ', ' + book.getYear()}"></tr>
     </table>
-    <hr>
 </div>
-<hr>
-<br/>
-<a th:href="@{/people/{id}/redact(id=${person.getId()})}">Edit</a>
-<br/>
-<hr>
-<form th:method="DELETE" th:action="@{/people/{id}(id=${person.getId()})}">
-    <input type="submit" value="Delete"/>
+
+<a class="btn" th:href="@{/people/{id}/redact(id=${person.getId()})}">Edit</a>
+
+<form th:method="DELETE" th:action="@{/people/{id}(id=${person.getId()})}" style="margin-top:10px;">
+    <button class="btn-red">Delete</button>
 </form>
 
 </body>
